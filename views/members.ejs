@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Membres</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px 20px;
+      text-align: left;
+    }
+    th {
+      background-color: #007BFF;
+      color: white;
+    }
+    input[type="text"] {
+      width: 300px;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .action-column {
+      display: flex;
+      justify-content: flex-end;
+    }
+    button {
+      padding: 6px 12px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    select {
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      margin-right: 10px;
+    }
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      font-size: 16px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    .notification.show {
+      display: block;
+      animation: fadeIn 0.5s forwards;
+    }
+
+    .notification.hide {
+      animation: fadeOut 0.5s forwards;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>Gestion des Membres</h1>
+  
+  <h2>Liste des Membres</h2>
+
+  <input type="text" id="searchInput" placeholder="Rechercher un membre..." onkeyup="filterMembers()">
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="membersTable">
+      <% members.forEach(member => { %>
+        <tr>
+          <td><%= member.id %></td>
+          <td><%= member.nom %></td>
+          <td><%= member.prenom %></td>
+          <td>
+            <form action="/update-specialRole/<%= tempKey %>" method="POST">
+
+              <input type="hidden" name="id" value="<%= member.id %>">
+              <input type="hidden" name="nom" value="<%= member.nom %>">
+              <input type="hidden" name="prenom" value="<%= member.prenom %>">
+              
+              <select name="specialRole">
+                <% let role = member.specialRole ? member.specialRole : "member"; %>
+                <option value="Administrator" <%= role === "Administrator" ? "selected" : "" %>>Administrator</option>
+                <option value="Moderator" <%= role === "Moderator" ? "selected" : "" %>>Modérateur</option>
+                <option value="member" <%= role === "member" ? "selected" : "" %>>Membre</option>
+              </select>
+              <button type="submit">Valider</button>
+            </form>
+            
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>  
+
+<div id="roleNotification" class="notification">
+  <span id="roleMessage"></span>
+</div>
+
+
+  <script>
+    function normalizeText(text) {
+      return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    function filterMembers() {
+      let input = normalizeText(document.getElementById("searchInput").value);
+      let rows = document.querySelectorAll("#membersTable tr");
+
+      rows.forEach(row => {
+        let nom = normalizeText(row.cells[1].textContent);
+        let prenom = normalizeText(row.cells[2].textContent);
+
+        if (nom.includes(input) || prenom.includes(input)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
+
+    function showRoleChangeNotification(memberId, newRole) {
+      const message = `${memberId} a maintenant le rôle de ${newRole}.`;
+
+      document.getElementById("roleMessage").textContent = message;
+
+      const notification = document.getElementById("roleNotification");
+      notification.classList.add("show");
+
+      setTimeout(() => {
+        notification.classList.remove("show");
+        notification.classList.add("hide");
+      }, 5000);
+    }
+
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault(); 
+
+        const formData = new FormData(form);
+        const memberId = formData.get('id');
+        const newRole = formData.get('specialRole');
+
+        showRoleChangeNotification(memberId, newRole);
+
+        form.submit(); 
+      });
+    });
+
+  </script>
+</body>
+</html>
