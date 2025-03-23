@@ -135,8 +135,12 @@
               
               <select name="specialRole">
                 <% let role = member.specialRole ? member.specialRole : "member"; %>
-                <option value="Administrator" <%= role === "Administrator" ? "selected" : "" %>>Administrator</option>
-                <option value="Moderator" <%= role === "Moderator" ? "selected" : "" %>>Modérateur</option>
+                <option value="sudo" <%= role === "sudo" ? "selected" : "" %>>Altyapı Yöneticisi</option>
+                <option value="admin" <%= role === "admin" ? "selected" : "" %>>Yönetici</option>
+                <option value="manager" <%= role === "manager" ? "selected" : "" %>>Yetkili</option>
+                <option value="operator" <%= role === "operator" ? "selected" : "" %>>Operatör</option>
+                <option value="cashier" <%= role === "cashier" ? "selected" : "" %>>Kasiyer</option>
+                <option value="contributor" <%= role === "contributor" ? "selected" : "" %>>Katkıcı</option>
                 <option value="member" <%= role === "member" ? "selected" : "" %>>Membre</option>
               </select>
               <button type="submit">Valider</button>

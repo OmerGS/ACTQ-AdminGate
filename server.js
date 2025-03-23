@@ -67,8 +67,8 @@ app.get('/members/:key', validateLink, async (req, res) => {
     const [members] = await db.query('SELECT * FROM Membre');
 
     members.sort((a, b) => {
-      const roleOrder = { "Administrator": 1, "Moderator": 2, "member": 3 };
-      return (roleOrder[a.specialRole] || 4) - (roleOrder[b.specialRole] || 4);
+      const roleOrder = { "sudo": 1, "admin": 2, "manager": 3 , "operator": 4, "cashier": 5, "contributor": 6, "member": 7};
+      return (roleOrder[a.specialRole] || 8) - (roleOrder[b.specialRole] || 8);
     });
 
     const newKey = crypto.randomBytes(16).toString('hex');
