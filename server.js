@@ -64,6 +64,7 @@ function validateLink(req, res, next) {
 
 app.get('/members/:key', validateLink, async (req, res) => {
   try {
+    initDatabase();
     const [members] = await db.query('SELECT * FROM Membre');
 
     members.sort((a, b) => {
